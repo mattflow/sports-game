@@ -1,21 +1,12 @@
 import type { League } from "../data/teams.types";
+import { ALL_LEAGUES } from "../data/leagues";
+import { leagueLogoUrl } from "./cdn";
 
-// League logos for the in-game "selected leagues" badges.
-const modules = import.meta.glob("./leagues/*.{png,svg,webp}", {
-  eager: true,
-  import: "default",
-});
-
-const byFile: Record<string, string> = {};
-for (const [path, url] of Object.entries(modules)) {
-  const file = path.split("/").pop() ?? "";
-  const key = file.replace(/\.(png|svg|webp)$/i, "");
-  byFile[key] = url as string;
-}
-
-export const LEAGUE_LOGOS: Record<League, string> = {
-  NBA: byFile.nba ?? "",
-  NFL: byFile.nfl ?? "",
-  MLB: byFile.mlb ?? "",
-  NHL: byFile.nhl ?? "",
-};
+// League logos (CDN) for the in-game "selected leagues" badges.
+export const LEAGUE_LOGOS: Record<League, string> = ALL_LEAGUES.reduce(
+  (acc, league) => {
+    acc[league] = leagueLogoUrl(league);
+    return acc;
+  },
+  {} as Record<League, string>,
+);

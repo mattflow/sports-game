@@ -1,5 +1,5 @@
-import { LOGOS } from "../logos";
 import type { League, RawTeam, TeamData } from "./teams.types";
+import { teamLogoUrl } from "../logos/cdn";
 
 // One row per team. `aliases` holds ONLY forms the matcher can't mechanically
 // derive (it already accepts mascot, city, fullName, "city mascot", abbreviation).
@@ -162,10 +162,10 @@ function team(
   };
 }
 
-/** All teams, with the resolved logo URL merged in ("" when no asset is bundled). */
+/** All teams, with the logo CDN URL merged in. */
 export const TEAMS: TeamData[] = RAW_TEAMS.map((t) => ({
   ...t,
-  logo: LOGOS[t.id] ?? "",
+  logo: teamLogoUrl(t.league, t.espnAbbr),
 }));
 
 export const TEAMS_BY_ID: Record<string, TeamData> = TEAMS.reduce(
