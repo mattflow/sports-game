@@ -8,7 +8,8 @@ import App from "./App";
 describe("App renders", () => {
   it("mounts the setup screen", () => {
     const html = renderToString(<App />);
-    expect(html).toContain("Pick your leagues");
-    expect(html).toContain("Name That Team");
+    expect(html).toContain("Sports"); // header title
+    expect(html).toContain("NBA"); // league toggles rendered
+    expect(html).toContain("Start ·"); // setup start button
   });
 });
