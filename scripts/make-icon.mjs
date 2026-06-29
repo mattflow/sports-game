@@ -1,6 +1,6 @@
 // Generate the master app icon (public/icon-master.png) for the Sports Game.
-// Original artwork: a stylized white ball on a navy gradient, ringed by four
-// arcs in the league accent colors (no trademarked logos). Run:
+// Original artwork: a striped sports pennant on a pole, the four stripes in the
+// league accent colors (no trademarked logos). Run:
 //   node scripts/make-icon.mjs   (then sips resizes it into the icon pack)
 import { deflateSync } from "node:zlib";
 import { writeFileSync } from "node:fs";
@@ -13,9 +13,8 @@ const out = resolve(dirname(fileURLToPath(import.meta.url)), "../public/icon-mas
 
 const NAVY_TOP = [23, 52, 99];
 const NAVY_BOT = [9, 24, 50];
-const SEAM = [9, 24, 50];
-const WHITE = [255, 255, 255];
-const RING = [
+const POLE = [241, 245, 249];
+const STRIPES = [
   [249, 115, 22], // orange
   [5, 150, 105], // emerald
   [37, 99, 235], // blue
@@ -25,28 +24,29 @@ const RING = [
 const lerp = (a, b, t) => a + (b - a) * t;
 const mix = (c1, c2, t) => [lerp(c1[0], c2[0], t), lerp(c1[1], c2[1], t), lerp(c1[2], c2[2], t)];
 
-function sampleColor(u, v) {
-  const dx = u - 0.5;
-  const dy = v - 0.5;
-  const dist = Math.hypot(dx, dy);
+// Pole + pennant geometry (unit coords).
+const POLE_X0 = 0.25, POLE_X1 = 0.3, POLE_Y0 = 0.17, POLE_Y1 = 0.83;
+const FINIAL_X = 0.275, FINIAL_Y = 0.17, FINIAL_R = 0.045;
+const XB = 0.3, XT = 0.85, YT = 0.29, YB = 0.61, YTIP = 0.45;
 
+function sampleColor(u, v) {
   let col = mix(NAVY_TOP, NAVY_BOT, v); // gradient background
 
-  const ringR = 0.375;
-  const ringHalf = 0.03;
-  if (Math.abs(dist - ringR) < ringHalf) {
-    let ang = Math.atan2(dy, dx);
-    if (ang < 0) ang += Math.PI * 2;
-    const q = Math.floor(ang / (Math.PI / 2)) % 4;
-    col = RING[q];
+  // Pennant (right-pointing triangle, 4 horizontal stripes converging to the tip).
+  if (u >= XB && u <= XT) {
+    const t = (u - XB) / (XT - XB);
+    const topY = lerp(YT, YTIP, t);
+    const botY = lerp(YB, YTIP, t);
+    if (v >= topY && v <= botY && botY > topY) {
+      const frac = (v - topY) / (botY - topY);
+      col = STRIPES[Math.min(3, Math.floor(frac * 4))];
+    }
   }
 
-  const ballR = 0.3;
-  if (dist < ballR) {
-    col = WHITE;
-    const seamHalf = 0.013;
-    if (Math.abs(dx) < seamHalf || Math.abs(dy) < seamHalf) col = SEAM;
-  }
+  // Pole (drawn over background to the left of the pennant) + rounded finial.
+  if (u >= POLE_X0 && u <= POLE_X1 && v >= POLE_Y0 && v <= POLE_Y1) col = POLE;
+  if (Math.hypot(u - FINIAL_X, v - FINIAL_Y) < FINIAL_R) col = POLE;
+
   return col;
 }
 
@@ -88,8 +88,7 @@ function crc32(bytes) {
   return (c ^ 0xffffffff) >>> 0;
 }
 function chunk(type, data) {
-  const typeBytes = Buffer.from(type, "ascii");
-  const body = Buffer.concat([typeBytes, data]);
+  const body = Buffer.concat([Buffer.from(type, "ascii"), data]);
   const len = Buffer.alloc(4);
   len.writeUInt32BE(data.length, 0);
   const crc = Buffer.alloc(4);
@@ -102,7 +101,6 @@ ihdr.writeUInt32BE(SIZE, 0);
 ihdr.writeUInt32BE(SIZE, 4);
 ihdr[8] = 8; // bit depth
 ihdr[9] = 6; // color type RGBA
-// 10,11,12 = 0 (compression, filter, interlace)
 
 const raw = Buffer.alloc(SIZE * (SIZE * 4 + 1));
 for (let y = 0; y < SIZE; y++) {
