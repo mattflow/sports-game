@@ -1,13 +1,44 @@
+import { useEffect, useState } from "react";
 import Container from "./components/Container";
+import DebugMenu from "./components/DebugMenu";
 import GameOverScreen from "./components/GameOverScreen";
 import GameScreen from "./components/GameScreen";
 import Header from "./components/Header";
 import SetupScreen from "./components/SetupScreen";
+import { teamsForLeagues } from "./data/teams";
 import { useGame } from "./hooks/useGame";
 
 export default function App() {
   const game = useGame();
   const { phase } = game.state;
+
+  // Secret debug menu: Ctrl/Cmd+Shift+D toggles it, or load with ?debug.
+  const [debug, setDebug] = useState(() => {
+    try {
+      return new URLSearchParams(window.location.search).has("debug");
+    } catch {
+      return false;
+    }
+  });
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        event.shiftKey &&
+        event.key.toLowerCase() === "d"
+      ) {
+        event.preventDefault();
+        setDebug((value) => !value);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const unnamed = teamsForLeagues(game.state.selectedLeagues).filter(
+    (team) => !game.namedSet.has(team.id),
+  );
+  const allButOne = unnamed[unnamed.length - 1] ?? null;
 
   return (
     <Container>
@@ -17,6 +48,27 @@ export default function App() {
       )}
       {phase === "playing" && <GameScreen game={game} />}
       {phase === "gameover" && <GameOverScreen game={game} />}
+
+      {debug && phase === "playing" && (
+        <DebugMenu
+          onWin={() => unnamed.forEach((team) => game.submitGuess(team.fullName))}
+          allButOneTeam={allButOne?.fullName ?? null}
+          onAllButOne={() =>
+            unnamed
+              .filter((team) => team.id !== allButOne?.id)
+              .forEach((team) => game.submitGuess(team.fullName))
+          }
+          onAddTen={() => {
+            const pool = [...unnamed];
+            for (let i = 0; i < 10 && pool.length > 0; i++) {
+              const index = Math.floor(Math.random() * pool.length);
+              game.submitGuess(pool.splice(index, 1)[0].fullName);
+            }
+          }}
+          onClear={game.reset}
+          onClose={() => setDebug(false)}
+        />
+      )}
     </Container>
   );
 }
