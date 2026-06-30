@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { useGame } from "../hooks/useGame";
+import { formatElapsed } from "../utils/formatElapsed";
 import CheatSheet from "./CheatSheet";
 import GuessInput from "./GuessInput";
 import LeagueBadges from "./LeagueBadges";
@@ -11,7 +12,7 @@ const CHECK_MS = 800;
 const NAME_VISIBLE_MS = 1200;
 
 const GameScreen = ({ game }: { game: ReturnType<typeof useGame> }) => {
-  const { state, namedSet, submitGuess, clearFeedback, newGame } = game;
+  const { state, namedSet, elapsedMs, submitGuess, clearFeedback, newGame } = game;
   const [value, setValue] = useState("");
   const [cheatOpen, setCheatOpen] = useState(false);
   const [confirmNew, setConfirmNew] = useState(false);
@@ -62,12 +63,21 @@ const GameScreen = ({ game }: { game: ReturnType<typeof useGame> }) => {
         remaining={state.totalForSelection - state.namedIds.length}
       />
 
-      <GuessInput
-        value={value}
-        onChange={onChange}
-        outcome={state.lastOutcome}
-        inputRef={inputRef}
-      />
+      {state.phase === "gameover" ? (
+        <div className="mt-8 text-center">
+          <p className="text-lg">
+            You named all {state.totalForSelection} in{" "}
+            <span className="font-semibold tabular-nums">{formatElapsed(elapsedMs)}</span>
+          </p>
+        </div>
+      ) : (
+        <GuessInput
+          value={value}
+          onChange={onChange}
+          outcome={state.lastOutcome}
+          inputRef={inputRef}
+        />
+      )}
 
       {cheatOpen && (
         <CheatSheet

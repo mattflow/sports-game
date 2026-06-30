@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Container from "./components/Container";
 import DebugMenu from "./components/DebugMenu";
-import GameOverScreen from "./components/GameOverScreen";
 import GameScreen from "./components/GameScreen";
 import Header from "./components/Header";
 import SetupScreen from "./components/SetupScreen";
@@ -62,10 +61,9 @@ export default function App() {
       {phase === "setup" && (
         <SetupScreen onStart={game.startGame} initialLeagues={game.state.selectedLeagues} />
       )}
-      {phase === "playing" && <GameScreen game={game} />}
-      {phase === "gameover" && <GameOverScreen game={game} />}
+      {(phase === "playing" || phase === "gameover") && <GameScreen game={game} />}
 
-      {debug && phase === "playing" && (
+      {debug && (phase === "playing" || phase === "gameover") && (
         <DebugMenu
           onWin={() => unnamed.forEach((team) => game.submitGuess(team.fullName))}
           allButOneTeam={allButOne?.fullName ?? null}
