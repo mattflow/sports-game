@@ -14,13 +14,14 @@ describe("Score", () => {
       />,
     );
 
+    expect(html).toContain("Remaining by league");
     expect(html).toContain("NBA");
     expect(html).toContain(">28<");
     expect(html).toContain("NFL");
     expect(html).toContain(">31<");
     expect(html).not.toContain("MLB");
     expect(html).not.toContain("NHL");
-    expect(html).toContain("Guessed:");
     expect(html).toContain(">3<");
+    expect(html).toContain("guessed");
   });
 });

@@ -5,7 +5,6 @@ import type { useGame } from "../hooks/useGame";
 import { formatElapsed } from "../utils/formatElapsed";
 import CheatSheet from "./CheatSheet";
 import GuessInput from "./GuessInput";
-import LeagueBadges from "./LeagueBadges";
 import Score from "./Score";
 
 // Delay after the player stops typing before we check the guess, and how long a
@@ -55,8 +54,7 @@ const GameScreen = ({ game }: { game: ReturnType<typeof useGame> }) => {
   return (
     <div>
       <div className="mt-8 flex items-center justify-between">
-        <LeagueBadges leagues={state.selectedLeagues} />
-        <div className="space-x-2">
+        <div className="ml-auto space-x-2">
           <button className="btn btn-sm" onClick={() => setCheatOpen(true)}>
             Cheat
           </button>
