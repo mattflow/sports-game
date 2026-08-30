@@ -16,7 +16,7 @@ const LogoTile = ({ team, named }: Props) => (
         aria-hidden
         loading="lazy"
         className={`max-h-full max-w-full transition duration-300 ${
-          named ? "" : "opacity-30"
+          named ? "" : "opacity-20"
         }`}
       />
     ) : (

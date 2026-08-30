@@ -19,14 +19,14 @@ describe("LogoTile", () => {
   it("renders unnamed logos in muted colour without blacking them out", () => {
     const html = renderToString(<LogoTile team={team} named={false} />);
 
-    expect(html).toContain("opacity-30");
+    expect(html).toContain("opacity-20");
     expect(html).not.toContain("brightness");
   });
 
   it("renders named logos at full opacity", () => {
     const html = renderToString(<LogoTile team={team} named />);
 
-    expect(html).not.toContain("opacity-30");
+    expect(html).not.toContain("opacity-20");
     expect(html).not.toContain("brightness");
   });
 });
