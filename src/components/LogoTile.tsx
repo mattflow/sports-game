@@ -5,8 +5,8 @@ interface Props {
   named: boolean;
 }
 
-// Named -> full-colour logo. Not yet named -> dark silhouette (so players can spot
-// which shapes they're still missing without being told the name).
+// Named -> full-colour logo. Not yet named -> muted colour (so players can spot
+// which logos they're still missing without being told the name).
 const LogoTile = ({ team, named }: Props) => (
   <div className="flex aspect-square items-center justify-center rounded-lg bg-base-200 p-2">
     {team.logo ? (
@@ -16,7 +16,7 @@ const LogoTile = ({ team, named }: Props) => (
         aria-hidden
         loading="lazy"
         className={`max-h-full max-w-full transition duration-300 ${
-          named ? "" : "opacity-30 [filter:brightness(0)]"
+          named ? "" : "opacity-30"
         }`}
       />
     ) : (

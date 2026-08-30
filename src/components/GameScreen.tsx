@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { ALL_LEAGUES } from "../data/leagues";
+import { teamsForLeagues } from "../data/teams";
 import type { useGame } from "../hooks/useGame";
 import { formatElapsed } from "../utils/formatElapsed";
 import CheatSheet from "./CheatSheet";
@@ -17,6 +19,12 @@ const GameScreen = ({ game }: { game: ReturnType<typeof useGame> }) => {
   const [cheatOpen, setCheatOpen] = useState(false);
   const [confirmNew, setConfirmNew] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const remainingByLeague = ALL_LEAGUES.filter((league) =>
+    state.selectedLeagues.includes(league),
+  ).map((league) => ({
+    league,
+    remaining: teamsForLeagues([league]).filter((team) => !namedSet.has(team.id)).length,
+  }));
 
   // Debounced check: once typing settles, resolve the guess. A brand-new correct
   // guess clears the input so the next player starts fresh.
@@ -60,7 +68,7 @@ const GameScreen = ({ game }: { game: ReturnType<typeof useGame> }) => {
 
       <Score
         guessed={state.namedIds.length}
-        remaining={state.totalForSelection - state.namedIds.length}
+        remainingByLeague={remainingByLeague}
       />
 
       {state.phase === "gameover" ? (
