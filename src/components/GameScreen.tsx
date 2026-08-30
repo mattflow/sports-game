@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
+import { ALL_LEAGUES } from "../data/leagues";
+import { teamsForLeagues } from "../data/teams";
 import type { useGame } from "../hooks/useGame";
 import { formatElapsed } from "../utils/formatElapsed";
 import CheatSheet from "./CheatSheet";
 import GuessInput from "./GuessInput";
-import LeagueBadges from "./LeagueBadges";
 import Score from "./Score";
 
 // Delay after the player stops typing before we check the guess, and how long a
@@ -17,6 +18,12 @@ const GameScreen = ({ game }: { game: ReturnType<typeof useGame> }) => {
   const [cheatOpen, setCheatOpen] = useState(false);
   const [confirmNew, setConfirmNew] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const remainingByLeague = ALL_LEAGUES.filter((league) =>
+    state.selectedLeagues.includes(league),
+  ).map((league) => ({
+    league,
+    remaining: teamsForLeagues([league]).filter((team) => !namedSet.has(team.id)).length,
+  }));
 
   // Debounced check: once typing settles, resolve the guess. A brand-new correct
   // guess clears the input so the next player starts fresh.
@@ -47,8 +54,7 @@ const GameScreen = ({ game }: { game: ReturnType<typeof useGame> }) => {
   return (
     <div>
       <div className="mt-8 flex items-center justify-between">
-        <LeagueBadges leagues={state.selectedLeagues} />
-        <div className="space-x-2">
+        <div className="ml-auto space-x-2">
           <button className="btn btn-sm" onClick={() => setCheatOpen(true)}>
             Cheat
           </button>
@@ -60,7 +66,7 @@ const GameScreen = ({ game }: { game: ReturnType<typeof useGame> }) => {
 
       <Score
         guessed={state.namedIds.length}
-        remaining={state.totalForSelection - state.namedIds.length}
+        remainingByLeague={remainingByLeague}
       />
 
       {state.phase === "gameover" ? (

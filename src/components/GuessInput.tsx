@@ -21,8 +21,8 @@ const getIcon = (outcome: Outcome) => {
 };
 
 const GuessInput = ({ value, onChange, outcome, inputRef }: Props) => (
-  <div className="form-control mt-1 w-full">
-    <div className="relative mt-1 rounded-md shadow-sm">
+  <div className="form-control mt-4 w-full">
+    <div className="relative rounded-md shadow-sm">
       <input
         ref={inputRef}
         type="text"
